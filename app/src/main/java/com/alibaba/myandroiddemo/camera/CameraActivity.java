@@ -1,24 +1,18 @@
-package com.alibaba.myandroiddemo;
+package com.alibaba.myandroiddemo.camera;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 
-import com.alibaba.myandroiddemo.camera.AutoFitSurfaceView;
-import com.alibaba.myandroiddemo.camera.CameraHelper;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.IOException;
-import java.util.List;
+import com.alibaba.myandroiddemo.R;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.PreviewCallback {
+public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.PreviewCallback {
     private static final String TAG = "camera1";
     HandlerThread handlerThread = new HandlerThread("thread");
     Handler handler;
@@ -38,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
-        handler.post(()->helper.openCamera());
+        handler.post(() -> helper.openCamera());
     }
 
 
@@ -55,5 +49,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         Log.d(TAG, "onPreviewFrame: " + data.length);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (helper != null) {
+            helper.release();
+        }
     }
 }

@@ -46,4 +46,14 @@ public class CameraHelper {
         camera.setPreviewCallback(previewCallback);
         camera.startPreview();
     }
+
+
+    public void release() {
+        if (camera != null) {
+            camera.stopPreview();
+            camera.setPreviewCallback(null);
+            camera.release();
+            camera = null;
+        }
+    }
 }
