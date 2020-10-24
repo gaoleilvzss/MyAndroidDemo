@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * create by 高 (｡◕‿◕｡) 磊
  * 2020/10/24
- * desc :
+ * desc : camera的辅助类。适配屏幕 不会产生拉伸的效果
  */
 public class CameraHelper implements Camera.PreviewCallback {
     Camera camera;
@@ -59,7 +59,7 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-    public void setCanTakePhoto(boolean isTakeCamera) {
+    public synchronized void setCanTakePhoto(boolean isTakeCamera) {
         this.isTakeCamera = isTakeCamera;
     }
 
