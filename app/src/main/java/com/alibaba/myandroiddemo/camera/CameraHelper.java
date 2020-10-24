@@ -1,11 +1,9 @@
 package com.alibaba.myandroiddemo.camera;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.Point;
 import android.hardware.Camera;
-import android.view.ActionMode;
-import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -16,23 +14,27 @@ import java.util.List;
  * 2020/10/24
  * desc :
  */
-public class CameraHelper {
+public class CameraHelper implements Camera.PreviewCallback {
     Camera camera;
     Camera.Parameters parameters;
     private WeakReference<Activity> weakReference;
     private AutoFitSurfaceView surfaceView;
-    private Camera.PreviewCallback previewCallback;
+    private CameraCallBack listener;
+    private Point currentSize = new Point();
+    private boolean isTakeCamera = false;
 
-    public CameraHelper(Activity activity, AutoFitSurfaceView surfaceView, Camera.PreviewCallback previewCallback) {
+    public CameraHelper(Activity activity, AutoFitSurfaceView surfaceView, CameraCallBack listener) {
         weakReference = new WeakReference<>(activity);
         this.surfaceView = surfaceView;
-        this.previewCallback = previewCallback;
+        this.listener = listener;
     }
 
     public void openCamera() {
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
         parameters = camera.getParameters();
         List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
+        currentSize.x = supportedPreviewSizes.get(0).width;
+        currentSize.y = supportedPreviewSizes.get(0).height;
         parameters.setPreviewSize(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height);
         weakReference.get().runOnUiThread(() -> surfaceView.setAspectRadio(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height));
         parameters.setPreviewFormat(ImageFormat.NV21);
@@ -43,7 +45,7 @@ public class CameraHelper {
         }
         camera.setDisplayOrientation(90);
         camera.setParameters(parameters);
-        camera.setPreviewCallback(previewCallback);
+        camera.setPreviewCallback(this);
         camera.startPreview();
     }
 
@@ -55,5 +57,28 @@ public class CameraHelper {
             camera.release();
             camera = null;
         }
+    }
+
+    public void setCanTakePhoto(boolean isTakeCamera) {
+        this.isTakeCamera = isTakeCamera;
+    }
+
+
+    public void stopCamera() {
+        if (camera != null) {
+            camera.stopPreview();
+        }
+    }
+
+    public void reStartCamera() {
+        if (camera != null) {
+            camera.startPreview();
+        }
+    }
+
+    @Override
+    public void onPreviewFrame(byte[] data, Camera camera) {
+        //因为只需要width 和 height 可以用point 来代替size 看起来方便些
+        listener.previewCallBack(data, isTakeCamera, currentSize);
     }
 }

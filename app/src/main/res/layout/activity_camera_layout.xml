@@ -7,4 +7,12 @@
         android:id="@+id/sfv"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <ImageButton
+        android:id="@+id/capture_image"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/ic_shutter"/>
+
 </FrameLayout>
