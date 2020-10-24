@@ -5,18 +5,21 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
@@ -26,6 +29,7 @@ import com.alibaba.myandroiddemo.camera.AutoFitSurfaceView;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * create by 高 (｡◕‿◕｡) 磊
@@ -58,20 +62,34 @@ public class Camera2Helper {
         Size previewOutputSize = getPreviewOutputSize(
                 surfaceView.getDisplay(), cameraCharacteristics, SurfaceHolder.class, null);
         surfaceView.setAspectRadio(previewOutputSize.getWidth(), previewOutputSize.getHeight());
-        initializeCamera();
+        initializeCamera(surfaceView);
     }
 
-    private void initializeCamera() {
-       openCamera2(cameraManager, "1", handler);
+    private void initializeCamera(AutoFitSurfaceView surfaceView) {
+        openCamera2(cameraManager, "1", handler, surfaceView);
     }
 
     @SuppressLint("MissingPermission")
-    private void openCamera2(CameraManager cameraManager, String cameraId, Handler handler) {
+    private void openCamera2(CameraManager cameraManager, String cameraId, Handler handler, AutoFitSurfaceView surfaceView) {
         try {
             cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
                 @Override
                 public void onOpened(@NonNull CameraDevice camera) {
                     cameraDevice = camera;
+                    Size[] outputSizes = cameraCharacteristics.get(
+                            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.NV21);
+                    Size maxSize = new Size(0, 0);
+                    for (Size outputSize : outputSizes) {
+                        if (outputSize.getHeight() * outputSize.getWidth() > maxSize.getWidth() * maxSize.getHeight()) {
+                            maxSize = outputSize;
+                        }
+                    }
+
+                    imageReader = ImageReader.newInstance(
+                            maxSize.getWidth(), maxSize.getHeight(), ImageFormat.NV21, 3);
+                    List<Surface> surfaces = Arrays.asList(surfaceView.getHolder().getSurface(), imageReader.getSurface());
+                    createCaptureSession(camera, surfaces, handler);
+
                 }
 
                 @Override
@@ -81,6 +99,32 @@ public class Camera2Helper {
 
                 @Override
                 public void onError(@NonNull CameraDevice camera, int error) {
+
+                }
+            }, handler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createCaptureSession(CameraDevice device, List<Surface> targets, Handler handler) {
+        try {
+            device.createCaptureSession(targets, new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession session) {
+                    cameraCaptureSession = session;
+                    try {
+                        CaptureRequest.Builder captureRequest = cameraDevice.createCaptureRequest(
+                                CameraDevice.TEMPLATE_PREVIEW);
+                        session.setRepeatingRequest(captureRequest.build(), null, handler);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
 
                 }
             }, handler);
