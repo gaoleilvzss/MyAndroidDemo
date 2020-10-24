@@ -1,2 +1,4 @@
+include ':module_pagging'
+include ':lib_network'
 include ':app'
 rootProject.name = "MyAndroidDemo"
