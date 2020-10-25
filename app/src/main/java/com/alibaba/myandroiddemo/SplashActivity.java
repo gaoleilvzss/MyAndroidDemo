@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.myandroiddemo.camera.CameraActivity;
+import com.alibaba.myandroiddemo.camera2.Camera2Activity;
+import com.alibaba.myandroiddemo.camera2.Camera2Helper;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 
@@ -27,7 +29,7 @@ public class SplashActivity extends AppCompatActivity {
                 .request(new RequestCallback() {
                     @Override
                     public void onResult(boolean allGranted, List<String> grantedList, List<String> deniedList) {
-                        startActivity(new Intent(SplashActivity.this, CameraActivity.class));
+                        startActivity(new Intent(SplashActivity.this, Camera2Activity.class));
                     }
                 });
     }
