@@ -10,9 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.alibaba.myandroiddemo.camera.CameraActivity;
 import com.alibaba.myandroiddemo.camera2.Camera2Activity;
 import com.alibaba.myandroiddemo.camera2.Camera2Helper;
+import com.alibaba.myandroiddemo.utils.Constant;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -25,13 +27,21 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PermissionX.init(this).permissions(Manifest.permission.CAMERA
-        ,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                , Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .request(new RequestCallback() {
                     @Override
                     public void onResult(boolean allGranted, List<String> grantedList, List<String> deniedList) {
-                        startActivity(new Intent(SplashActivity.this, Camera2Activity.class));
+                        createDir();
+                        startActivity(new Intent(SplashActivity.this, CameraActivity.class));
                     }
                 });
+    }
+
+    private void createDir() {
+        File file = new File(Constant.BYTES_SAVE_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
     @Override

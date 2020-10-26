@@ -33,10 +33,10 @@ public class CameraHelper implements Camera.PreviewCallback {
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
         parameters = camera.getParameters();
         List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
-        currentSize.x = supportedPreviewSizes.get(0).width;
-        currentSize.y = supportedPreviewSizes.get(0).height;
-        parameters.setPreviewSize(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height);
-        weakReference.get().runOnUiThread(() -> surfaceView.setAspectRadio(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height));
+        currentSize.x = supportedPreviewSizes.get(11).width;
+        currentSize.y = supportedPreviewSizes.get(11).height;
+        parameters.setPreviewSize(supportedPreviewSizes.get(11).width, supportedPreviewSizes.get(11).height);
+        weakReference.get().runOnUiThread(() -> surfaceView.setAspectRadio(supportedPreviewSizes.get(11).width, supportedPreviewSizes.get(11).height));
         parameters.setPreviewFormat(ImageFormat.NV21);
         try {
             camera.setPreviewDisplay(surfaceView.getHolder());

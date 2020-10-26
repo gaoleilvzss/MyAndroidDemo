@@ -15,4 +15,7 @@ public class Constant {
     //图片存放路径
     public static final String PHOTO_PATH = BASE_PATH + File.separator + "cameraPicture";
 
+    //bytes文件存放路径
+    public static final String BYTES_SAVE_PATH = BASE_PATH + File.separator + "bytes";
+
 }

@@ -15,7 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.myandroiddemo.R;
+import com.alibaba.myandroiddemo.utils.Constant;
+import com.alibaba.myandroiddemo.utils.ExecutorUtils;
+import com.alibaba.myandroiddemo.utils.FileUtils;
 import com.alibaba.myandroiddemo.utils.ImageUtils;
+import com.alibaba.myandroiddemo.utils.WriteTask;
+
+import java.io.File;
+import java.util.Arrays;
 
 public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, CameraCallBack {
     private static final String TAG = "camera1";
@@ -24,6 +31,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     AutoFitSurfaceView surfaceView;
     CameraHelper helper;
     ImageButton imageButton;
+    ExecutorUtils executorUtils = new ExecutorUtils();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,17 +71,30 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         }
     }
 
+    int a = 0;
+
     @Override
     public void previewCallBack(byte[] bytes, boolean isCanTake, Point currentSize) {
-        if (isCanTake) {
-            //进行拍照
-            helper.stopCamera();
-            byte[] data = ImageUtils.rotateYUVDegree270AndMirror(bytes, currentSize.x, currentSize.y);
-            String s = ImageUtils.yuv2BitmapAndSave(data, currentSize.y, currentSize.x);
-            helper.setCanTakePhoto(false);
-            runOnUiThread(() -> Toast.makeText(this, "保存路径" + s, Toast.LENGTH_SHORT).show());
-        } else {
-            //可以进行帧处理等操作
+//        if (isCanTake) {
+//            //进行拍照
+//            helper.stopCamera();
+//            byte[] data = ImageUtils.rotateYUVDegree270AndMirror(bytes, currentSize.x, currentSize.y);
+//            String s = ImageUtils.yuv2BitmapAndSave(data, currentSize.y, currentSize.x);
+//            helper.setCanTakePhoto(false);
+//            runOnUiThread(() -> Toast.makeText(this, "保存路径" + s, Toast.LENGTH_SHORT).show());
+//        } else {
+        //可以进行帧处理等操作
+        if (a == 0) {
+            a++;
+            byte_a = ImageUtils.rotateYUVDegree270AndMirror(bytes, currentSize.x, currentSize.y);
+            executorUtils.putTask(new WriteTask(executorUtils, byte_a, Constant.BYTES_SAVE_PATH + File.separator + "mit_1.txt"));
+            byte_b = FileUtils.getInstance().readFileToByteArray(Constant.BYTES_SAVE_PATH + File.separator + "mit_1.txt");
+            Toast.makeText(this, Arrays.equals(byte_a, byte_b) ? "相同" : "不同", Toast.LENGTH_SHORT).show();
         }
+
+//        }
     }
+
+    byte[] byte_a;
+    byte[] byte_b;
 }
